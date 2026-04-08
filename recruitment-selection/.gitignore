@@ -1,0 +1,31 @@
+# Go binary
+backend/server
+backend/*.exe
+
+# Environment files
+backend/.env
+frontend/.env
+frontend/.env.local
+
+# Uploads (CV files)
+backend/uploads/*
+!backend/uploads/.gitkeep
+
+# Go test artifacts
+*.test
+*.out
+
+# Node modules
+frontend/node_modules/
+
+# Vite build output
+frontend/dist/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db

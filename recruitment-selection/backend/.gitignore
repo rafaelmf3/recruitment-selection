@@ -1,0 +1,17 @@
+# Binary
+server
+*.exe
+
+# Environment
+.env
+
+# Uploads
+uploads/
+
+# Go test cache
+*.test
+*.out
+
+# IDE
+.vscode/
+.idea/
