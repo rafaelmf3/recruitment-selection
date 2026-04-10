@@ -148,3 +148,8 @@ func (m *ApplicationRepository) Update(ctx context.Context, app *model.Applicati
 	args := m.Called(ctx, app)
 	return args.Error(0)
 }
+
+func (m *ApplicationRepository) RejectActiveApplications(ctx context.Context, jobID uuid.UUID) error {
+	args := m.Called(ctx, jobID)
+	return args.Error(0)
+}

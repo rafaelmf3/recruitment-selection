@@ -142,9 +142,14 @@ interface ApplicationCardProps {
   onAction: (action: PendingAction) => void
 }
 
+function isJobTerminal(status: JobStatus): boolean {
+  return status === 'closed' || status === 'cancelled'
+}
+
 function ApplicationCard({ app, job, onAction }: ApplicationCardProps) {
   const [coverOpen, setCoverOpen] = useState(false)
   const isFinished = ['accepted', 'rejected', 'withdrawn'].includes(app.status)
+  const jobTerminal = isJobTerminal(job.status)
   const nextStage = getNextStage(job, app.current_stage_id)
   const currentStage = getCurrentStage(job, app.current_stage_id)
 
@@ -212,8 +217,8 @@ function ApplicationCard({ app, job, onAction }: ApplicationCardProps) {
           </div>
         )}
 
-        {/* Action buttons */}
-        {!isFinished && (
+        {/* Action buttons — hidden for terminal jobs (all candidates auto-rejected on close/cancel) */}
+        {!isFinished && !jobTerminal && (
           <div className="flex gap-2 flex-wrap pt-1 border-t">
             {nextStage && (
               <Button
@@ -360,6 +365,7 @@ export default function JobPipelinePage() {
   if (error) return <p className="text-destructive">{error}</p>
   if (!job) return null
 
+  const jobTerminal = isJobTerminal(job.status)
   const availableTransitions = STATUS_TRANSITIONS[job.status]
   const confirmContent = pending ? getConfirmContent(pending) : null
 
@@ -439,9 +445,11 @@ export default function JobPipelinePage() {
                     : 'Não informado'}
                 </p>
               </div>
-              <Button variant="ghost" size="sm" onClick={startEditSalary} className="ml-auto">
-                <Pencil className="w-4 h-4 mr-1" />Editar
-              </Button>
+              {!jobTerminal && (
+                <Button variant="ghost" size="sm" onClick={startEditSalary} className="ml-auto">
+                  <Pencil className="w-4 h-4 mr-1" />Editar
+                </Button>
+              )}
             </div>
           )}
         </CardContent>

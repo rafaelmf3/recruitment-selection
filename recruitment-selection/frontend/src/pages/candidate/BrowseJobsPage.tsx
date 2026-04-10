@@ -50,15 +50,19 @@ export default function BrowseJobsPage() {
   const [appliedMap, setAppliedMap] = useState<AppliedMap>(new Map())
   const [hideApplied, setHideApplied] = useState(false)
 
-  // Load existing applications once on mount
+  // Load existing applications once on mount to build the appliedMap.
+  // Errors are intentionally ignored — the jobs list still renders; applied
+  // badges simply won't appear until the next successful load.
   useEffect(() => {
-    applicationsService.myApplications().then((apps) => {
-      const map: AppliedMap = new Map()
-      apps.forEach((app) => {
-        if (app.job_id) map.set(app.job_id, app.created_at)
+    applicationsService.myApplications()
+      .then((apps) => {
+        const map: AppliedMap = new Map()
+        apps.forEach((app) => {
+          if (app.job_id) map.set(app.job_id, app.created_at)
+        })
+        setAppliedMap(map)
       })
-      setAppliedMap(map)
-    })
+      .catch(() => {/* non-critical — appliedMap stays empty */})
   }, [])
 
   const fetchJobs = useCallback(async () => {

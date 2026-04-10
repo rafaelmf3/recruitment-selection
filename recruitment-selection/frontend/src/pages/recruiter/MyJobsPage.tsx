@@ -136,15 +136,17 @@ function JobCard({ job, onUpdate }: JobCardProps) {
                 ? `R$ ${job.salary_min.toLocaleString('pt-BR')} – R$ ${job.salary_max.toLocaleString('pt-BR')}`
                 : 'Não informado'}
             </p>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-6 px-2"
-              onClick={startEditSalary}
-              title="Editar faixa salarial"
-            >
-              <Pencil className="w-3 h-3" />
-            </Button>
+            {job.status !== 'closed' && job.status !== 'cancelled' && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-6 px-2"
+                onClick={startEditSalary}
+                title="Editar faixa salarial"
+              >
+                <Pencil className="w-3 h-3" />
+              </Button>
+            )}
           </div>
         )}
 

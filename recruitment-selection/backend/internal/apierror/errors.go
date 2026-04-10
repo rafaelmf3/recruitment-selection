@@ -5,9 +5,6 @@ package apierror
 import "errors"
 
 var (
-	// ErrNotImplemented is returned by stub implementations before TDD GREEN phase.
-	ErrNotImplemented = errors.New("not implemented")
-
 	// Auth errors
 	ErrEmailAlreadyExists  = errors.New("email already in use")
 	ErrInvalidCredentials  = errors.New("invalid email or password")
@@ -20,6 +17,7 @@ var (
 	// Job errors
 	ErrJobNotFound        = errors.New("job not found")
 	ErrJobNotAccepting    = errors.New("job is not accepting applications")
+	ErrJobTerminal        = errors.New("job is in a terminal state and cannot be modified")
 	ErrInvalidSalary      = errors.New("salary_min cannot be greater than salary_max")
 	ErrInvalidTransition  = errors.New("invalid status transition")
 

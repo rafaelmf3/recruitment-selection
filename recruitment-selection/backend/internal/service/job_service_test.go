@@ -17,8 +17,19 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+// newJobService creates a jobService with an ephemeral appRepo mock.
+// Use newJobServiceWithAppRepo when you need to assert on appRepo behaviour.
 func newJobService(jobRepo *mockrepo.JobRepository) service.JobService {
-	return service.NewJobService(jobRepo)
+	return service.NewJobService(jobRepo, new(mockrepo.ApplicationRepository))
+}
+
+// newJobServiceWithAppRepo creates a jobService returning an explicit appRepo
+// mock so tests can configure expectations on it.
+func newJobServiceWithAppRepo(
+	jobRepo *mockrepo.JobRepository,
+	appRepo *mockrepo.ApplicationRepository,
+) service.JobService {
+	return service.NewJobService(jobRepo, appRepo)
 }
 
 // ---- CreateJob --------------------------------------------------------------
@@ -228,21 +239,41 @@ func TestJobService_UpdateJob_PauseFromOpen(t *testing.T) {
 	assert.Equal(t, model.JobStatusPaused, resp.Status)
 }
 
-func TestJobService_UpdateJob_InvalidTransition_ClosedToOpen(t *testing.T) {
+func TestJobService_UpdateJob_TerminalJobIsImmutable(t *testing.T) {
 	jobRepo := new(mockrepo.JobRepository)
 	svc := newJobService(jobRepo)
 
 	job := testutil.NewJob()
-	job.Status = model.JobStatusClosed // terminal state
-	req := dto.UpdateJobRequest{Status: model.JobStatusOpen}
+	job.Status = model.JobStatusClosed // terminal state — no edits allowed
+	req := dto.UpdateJobRequest{Title: "Any change should be rejected"}
 
 	jobRepo.On("FindByID", context.Background(), testutil.JobID).Return(job, nil)
 
 	resp, err := svc.UpdateJob(context.Background(), testutil.RecruiterID, testutil.JobID, req)
 
 	assert.Nil(t, resp)
-	assert.True(t, errors.Is(err, apierror.ErrInvalidTransition))
+	assert.True(t, errors.Is(err, apierror.ErrJobTerminal))
 	jobRepo.AssertNotCalled(t, "Update")
+}
+
+func TestJobService_UpdateJob_CloseJobRejectsActiveApplications(t *testing.T) {
+	jobRepo := new(mockrepo.JobRepository)
+	appRepo := new(mockrepo.ApplicationRepository)
+	svc := newJobServiceWithAppRepo(jobRepo, appRepo)
+
+	job := testutil.NewJob() // status: open
+	req := dto.UpdateJobRequest{Status: model.JobStatusClosed}
+
+	jobRepo.On("FindByID", context.Background(), testutil.JobID).Return(job, nil)
+	appRepo.On("RejectActiveApplications", context.Background(), testutil.JobID).Return(nil)
+	jobRepo.On("Update", context.Background(), testutil.AnyJob()).Return(nil)
+
+	resp, err := svc.UpdateJob(context.Background(), testutil.RecruiterID, testutil.JobID, req)
+
+	require.NoError(t, err)
+	assert.Equal(t, model.JobStatusClosed, resp.Status)
+	appRepo.AssertExpectations(t)
+	jobRepo.AssertExpectations(t)
 }
 
 // ---- UpdateJobStages --------------------------------------------------------

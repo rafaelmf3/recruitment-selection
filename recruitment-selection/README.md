@@ -1,68 +1,100 @@
-# Recruitment & Selection System
+# Sistema de Recrutamento & Seleção
 
-A full-stack web application for managing job postings, candidate applications, and selection pipelines.
+Aplicação web full-stack para gerenciar vagas, candidaturas e pipelines de seleção.
 
-Built with **Go + Gin + GORM + PostgreSQL** on the backend and **React + TypeScript + Vite** on the frontend.
+Backend em **Go + Gin + GORM + PostgreSQL** · Frontend em **React + TypeScript + Vite**
 
 ---
 
 ## Tech Stack
 
-| Layer    | Technology                          |
-|----------|-------------------------------------|
-| Backend  | Go 1.22, Gin, GORM, PostgreSQL 16   |
-| Frontend | React 18, TypeScript, Vite, Axios   |
-| Auth     | JWT (HS256)                         |
-| DevOps   | Docker, Docker Compose              |
+| Camada    | Tecnologia                              |
+|-----------|-----------------------------------------|
+| Backend   | Go 1.22, Gin, GORM, PostgreSQL 16       |
+| Frontend  | React 18, TypeScript, Vite, Axios, shadcn/ui |
+| Auth      | JWT (HS256)                             |
+| DevOps    | Docker, Docker Compose                  |
 
 ---
 
-## Features
+## Funcionalidades
 
-- User registration and login (recruiter or candidate)
-- JWT-based authentication with persistent sessions
-- Recruiters: create and manage job postings with custom selection pipelines
-- Candidates: search jobs (with salary filter), apply with cover letter and CV upload
-- Recruiters: advance candidates through pipeline stages
-- Protected routes: cannot access login/register when already authenticated
+**Autenticação**
+- Cadastro e login com e-mail e senha (papel: recrutador ou candidato)
+- Sessão persistente via JWT — atualizar a página não desloga
+- Rotas protegidas: usuário logado não acessa `/login` ou `/register`
+
+**Recrutador**
+- Criar vagas com título, empresa, descrição, requisitos, localidade e faixa salarial
+- Editar faixa salarial inline na listagem de vagas
+- Definir etapas personalizadas do pipeline para cada vaga
+- Controlar status da vaga: aberta, pausada, encerrada, cancelada
+- Buscar as próprias vagas por nome, empresa e/ou status (com debounce)
+- Visualizar candidatos em cada etapa do pipeline com barra de progresso colorida
+- Avançar candidato de etapa em etapa até aprovação
+- Aceitar ou reprovar candidato a qualquer momento do processo
+- Acessar o CV (PDF) e a carta de apresentação de cada candidato
+- Confirmação explícita antes de qualquer ação crítica (dialogs)
+
+**Candidato**
+- Buscar vagas por palavra-chave, salário e localidade
+- Ver badge "Candidatou-se DD/MM/YYYY às hh:mm" nas vagas já aplicadas
+- Ocultar/exibir vagas já candidatadas na listagem
+- Candidatar-se com carta de apresentação + CV obrigatório (PDF)
+- Acompanhar candidaturas com barra do pipeline destacando etapa atual
+- Expandir cada candidatura para ver carta de apresentação e link do CV
+- Retirar candidatura (ação visível ao recrutador como "withdrawn")
 
 ---
 
-## Project Structure
+## Estrutura do Projeto
 
 ```
 recruitment-selection/
 ├── backend/
-│   ├── cmd/server/          # Entry point
+│   ├── cmd/
+│   │   ├── server/          # Entry point da aplicação
+│   │   └── seed/            # Script de dados de exemplo (idempotente)
 │   ├── internal/
-│   │   ├── api/handler/     # HTTP handlers (Gin)
-│   │   ├── config/          # Environment config loader
-│   │   ├── middleware/      # Auth, CORS middleware
-│   │   ├── model/           # GORM models
-│   │   ├── repository/      # Database access layer
-│   │   └── service/         # Business logic layer
-│   ├── migrations/          # Plain SQL migrations (run on DB init)
-│   ├── uploads/             # CV file storage
+│   │   ├── api/
+│   │   │   ├── handler/     # Handlers HTTP (Gin)
+│   │   │   └── router.go    # Registro de todas as rotas
+│   │   ├── apierror/        # Erros de domínio tipados
+│   │   ├── config/          # Carregamento de variáveis de ambiente
+│   │   ├── dto/             # Request / Response structs (camada de transporte)
+│   │   ├── middleware/       # Auth JWT e CORS
+│   │   ├── mock/            # Mocks testify para repository e service
+│   │   ├── model/           # Modelos GORM
+│   │   ├── repository/      # Camada de acesso ao banco
+│   │   ├── service/         # Regras de negócio
+│   │   ├── testutil/        # Helpers para testes de integração
+│   │   └── token/           # Geração e validação de JWT
+│   ├── migrations/          # Migrations SQL puras (executadas na inicialização do DB)
+│   ├── uploads/             # Armazenamento de CVs enviados
 │   ├── .env.example
 │   ├── Dockerfile
 │   └── go.mod
 ├── frontend/
 │   ├── src/
-│   │   ├── components/      # Reusable UI components
-│   │   ├── hooks/           # Custom React hooks
-│   │   ├── pages/           # Route-level pages
-│   │   ├── services/        # Axios API calls
-│   │   └── types/           # TypeScript interfaces
+│   │   ├── components/      # Componentes reutilizáveis (Navbar, PipelineBar, StatusBadge…)
+│   │   ├── contexts/        # AuthContext (estado global de autenticação)
+│   │   ├── hooks/           # useAuth
+│   │   ├── pages/
+│   │   │   ├── auth/        # LoginPage, RegisterPage
+│   │   │   ├── candidate/   # BrowseJobsPage, MyApplicationsPage
+│   │   │   └── recruiter/   # MyJobsPage, CreateJobPage, JobPipelinePage
+│   │   ├── services/        # Chamadas Axios (api, auth, jobs, applications)
+│   │   └── types/           # Interfaces TypeScript
 │   └── package.json
 ├── docs/
-│   └── api.md               # REST API reference
+│   └── api.md               # Referência completa da API REST
 ├── docker-compose.yml
 └── README.md
 ```
 
 ---
 
-## Database Schema
+## Schema do Banco de Dados
 
 ```mermaid
 erDiagram
@@ -79,13 +111,14 @@ erDiagram
     JOBS {
         uuid id PK
         uuid recruiter_id FK
+        varchar company
         varchar title
         text description
         text requirements
         varchar location
         numeric salary_min
         numeric salary_max
-        enum status "open | closed"
+        enum status "open | paused | closed | cancelled"
         timestamptz created_at
         timestamptz updated_at
     }
@@ -111,107 +144,133 @@ erDiagram
         timestamptz updated_at
     }
 
-    USERS ||--o{ JOBS : "recruiter creates"
-    USERS ||--o{ APPLICATIONS : "candidate applies"
-    JOBS ||--o{ JOB_STAGES : "has stages"
-    JOBS ||--o{ APPLICATIONS : "receives"
-    JOB_STAGES ||--o{ APPLICATIONS : "current stage"
+    USERS ||--o{ JOBS : "recruiter cria"
+    USERS ||--o{ APPLICATIONS : "candidato aplica"
+    JOBS ||--o{ JOB_STAGES : "tem etapas"
+    JOBS ||--o{ APPLICATIONS : "recebe"
+    JOB_STAGES ||--o{ APPLICATIONS : "etapa atual"
 ```
 
 ---
 
-## Application Flow
+## Fluxo da Aplicação
 
 ```mermaid
 flowchart TD
-    A([User]) --> B{Has account?}
-    B -- No --> C[Register\nname + email + password + role]
-    B -- Yes --> D[Login\nemail + password]
+    A([Usuário]) --> B{Tem conta?}
+    B -- Não --> C[Cadastro\nnome + e-mail + senha + papel]
+    B -- Sim --> D[Login\ne-mail + senha]
     C --> D
-    D --> E{Role?}
+    D --> E{Papel?}
 
-    E -- Recruiter --> F[My Jobs Dashboard]
-    F --> G[Create Job\ntitle, desc, salary, location]
-    G --> H[Default stages auto-created\nScreening > Tech > Team > Manager > Offer > Hired]
-    H --> I[Edit stages if needed]
-    F --> J[View applications per job]
-    J --> K[Advance candidate to next stage]
-    K --> L{Decision}
-    L -- Accept --> M([Status: accepted])
-    L -- Reject --> N([Status: rejected])
+    E -- Recrutador --> F[Minhas Vagas\nbusca por nome / empresa / status]
+    F --> G[Criar Vaga\nempresa, título, desc, salário, localidade]
+    G --> H[Definir etapas do pipeline]
+    F --> J[Ver Pipeline da Vaga]
+    J --> K[Avançar candidato de etapa]
+    K --> L{Decisão}
+    L -- Aceitar --> M([Status: accepted])
+    L -- Reprovar --> N([Status: rejected])
 
-    E -- Candidate --> O[Search Jobs\nkeyword + salary filter]
-    O --> P[View Job Details]
-    P --> Q[Apply\ncover letter + CV upload]
-    Q --> R[My Applications Dashboard]
-    R --> S[Track current stage and status]
+    E -- Candidato --> O[Buscar Vagas\npalavra-chave + salário + localidade]
+    O --> P[Candidatar-se\ncarta de apresentação + CV PDF]
+    P --> Q[Minhas Candidaturas]
+    Q --> R[Ver etapa atual no pipeline]
+    Q --> S[Retirar candidatura]
 ```
 
 ---
 
-## Getting Started
+## Como Executar
 
-### Prerequisites
+### Pré-requisitos
 
-- Docker and Docker Compose
+- Docker e Docker Compose
 
-### Run everything
+### Subir tudo
 
 ```bash
-# Copy environment variables
+# Copiar variáveis de ambiente
 cp backend/.env.example backend/.env
 
-# Start DB + backend + test DB
+# Subir banco + backend
 docker compose up -d
 
-# Backend is available at http://localhost:8080
+# Backend disponível em http://localhost:8080
+# Frontend disponível em http://localhost:5173
 ```
 
-### Run backend locally (without Docker)
+### Backend local (sem Docker)
 
 ```bash
 cd backend
 cp .env.example .env
-# Edit .env with your local PostgreSQL credentials
+# Ajuste .env com suas credenciais do PostgreSQL local
 
 go mod tidy
 go run ./cmd/server
 ```
 
-### Run tests
+### Frontend local
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+### Popular o banco com dados de exemplo
+
+O script de seed cria 1 recrutador, 10 candidatos, 8 vagas em empresas e status variados e 23 candidaturas espalhadas por diversas etapas do pipeline. É idempotente — pode ser rodado mais de uma vez sem duplicar dados.
+
+```bash
+cd backend
+go run ./cmd/seed/main.go
+```
+
+Credenciais criadas pelo seed:
+
+| Papel       | E-mail                        | Senha    |
+|-------------|-------------------------------|----------|
+| Recrutador  | recrutador@techbr.com         | senha123 |
+| Candidato 1 | joao.silva@email.com          | senha123 |
+| Candidato 2 | maria.santos@email.com        | senha123 |
+| …           | (até beatriz.rocha@email.com) | senha123 |
+
+### Testes
 
 ```bash
 cd backend
 
-# Unit tests
+# Testes unitários
 go test ./internal/...
 
-# Integration tests (requires db_test container running)
+# Testes de integração (requer container db_test)
 docker compose up -d db_test
 go test ./internal/... -tags=integration -v
-``` 
-
+```
 
 ---
 
-## API Overview
+## API
 
-| Method | Endpoint                              | Auth     | Description                    |
-|--------|---------------------------------------|----------|--------------------------------|
-| POST   | /api/v1/auth/register                 | No       | Register new user              |
-| POST   | /api/v1/auth/login                    | No       | Login, returns JWT             |
-| GET    | /api/v1/jobs                          | No       | List open jobs (with filters)  |
-| GET    | /api/v1/jobs/:id                      | No       | Job details + stages           |
-| POST   | /api/v1/jobs                          | Recruiter| Create job                     |
-| PUT    | /api/v1/jobs/:id                      | Recruiter| Update job                     |
-| DELETE | /api/v1/jobs/:id                      | Recruiter| Delete job                     |
-| GET    | /api/v1/jobs/:id/stages               | Auth     | List stages for a job          |
-| PUT    | /api/v1/jobs/:id/stages               | Recruiter| Update stages for a job        |
-| POST   | /api/v1/jobs/:id/apply                | Candidate| Apply to a job (with CV)       |
-| GET    | /api/v1/applications                  | Candidate| My applications                |
-| GET    | /api/v1/recruiter/applications        | Recruiter| All applications for my jobs   |
-| PATCH  | /api/v1/applications/:id/stage        | Recruiter| Advance candidate to next stage|
-| PATCH  | /api/v1/applications/:id/status       | Recruiter| Accept or reject candidate     |
-| GET    | /api/v1/health                        | No       | Health check                   |
+| Método | Endpoint                                 | Auth       | Descrição                              |
+|--------|------------------------------------------|------------|----------------------------------------|
+| POST   | /api/v1/auth/register                    | Público    | Cadastrar novo usuário                 |
+| POST   | /api/v1/auth/login                       | Público    | Login, retorna JWT                     |
+| GET    | /api/v1/jobs                             | Público    | Listar vagas abertas (com filtros)     |
+| GET    | /api/v1/jobs/:id                         | Público    | Detalhes da vaga + etapas              |
+| GET    | /api/v1/recruiter/jobs?q=&status=        | Recrutador | Minhas vagas (busca por nome/empresa/status) |
+| POST   | /api/v1/recruiter/jobs                   | Recrutador | Criar vaga                             |
+| PUT    | /api/v1/recruiter/jobs/:id               | Recrutador | Atualizar vaga                         |
+| DELETE | /api/v1/recruiter/jobs/:id               | Recrutador | Deletar vaga                           |
+| PUT    | /api/v1/recruiter/jobs/:id/stages        | Recrutador | Redefinir etapas do pipeline           |
+| GET    | /api/v1/recruiter/jobs/:id/applications  | Recrutador | Candidaturas de uma vaga               |
+| PATCH  | /api/v1/recruiter/applications/:id/stage  | Recrutador | Avançar candidato à próxima etapa      |
+| PATCH  | /api/v1/recruiter/applications/:id/status | Recrutador | Aceitar ou reprovar candidato          |
+| POST   | /api/v1/jobs/:id/apply                   | Candidato  | Candidatar-se (multipart: carta + CV)  |
+| GET    | /api/v1/applications                     | Candidato  | Minhas candidaturas                    |
+| PATCH  | /api/v1/applications/:id/withdraw        | Candidato  | Retirar candidatura                    |
+| GET    | /api/v1/health                           | Público    | Health check                           |
 
-Full API documentation: [docs/api.md](docs/api.md)
+Documentação completa: [docs/api.md](docs/api.md)

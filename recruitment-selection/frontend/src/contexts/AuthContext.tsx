@@ -23,7 +23,9 @@ interface AuthProviderProps {
 // Parse the JWT payload to extract user info without a round-trip.
 function parseJwtPayload(token: string): User | null {
   try {
-    const base64 = token.split('.')[1]
+    const parts = token.split('.')
+    if (parts.length !== 3) return null
+    const base64 = parts[1]
     const json = atob(base64.replace(/-/g, '+').replace(/_/g, '/'))
     const payload = JSON.parse(json) as {
       user_id: string

@@ -208,7 +208,9 @@ func findNextStage(stages []model.JobStage, currentStageID *uuid.UUID) (*model.J
 	return nil, apierror.ErrStageNotFound
 }
 
-// saveCV persists the uploaded file to the upload directory and returns its path.
+// saveCV persists the uploaded file to the upload directory and returns the
+// HTTP-accessible URL path (e.g. "/uploads/<filename>") so it can be stored
+// in the database and served directly from the router's /uploads static route.
 func (s *applicationService) saveCV(file *multipart.FileHeader, candidateID uuid.UUID) (string, error) {
 	if err := os.MkdirAll(s.uploadDir, 0755); err != nil {
 		return "", err
@@ -234,7 +236,8 @@ func (s *applicationService) saveCV(file *multipart.FileHeader, candidateID uuid
 		return "", err
 	}
 
-	return dst, nil
+	// Return the URL path, not the filesystem path.
+	return "/uploads/" + filename, nil
 }
 
 func toApplicationResponse(a *model.Application) *dto.ApplicationResponse {

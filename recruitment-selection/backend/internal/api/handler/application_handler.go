@@ -4,6 +4,9 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"path/filepath"
+	"strings"
+
 	"recruitment-selection/internal/apierror"
 	"recruitment-selection/internal/dto"
 	"recruitment-selection/internal/middleware"
@@ -50,6 +53,10 @@ func (h *ApplicationHandler) Apply(c *gin.Context) {
 	cvFile, err := c.FormFile("cv")
 	if err != nil || cvFile == nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "curriculum (cv) é obrigatório"})
+		return
+	}
+	if ext := strings.ToLower(filepath.Ext(cvFile.Filename)); ext != ".pdf" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "curriculum deve ser um arquivo PDF"})
 		return
 	}
 

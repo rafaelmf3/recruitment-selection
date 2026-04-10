@@ -15,11 +15,13 @@ import (
 // jobService is the concrete implementation of JobService.
 type jobService struct {
 	jobRepo repository.JobRepository
+	appRepo repository.ApplicationRepository
 }
 
 // NewJobService returns a new JobService.
-func NewJobService(jobRepo repository.JobRepository) JobService {
-	return &jobService{jobRepo: jobRepo}
+// appRepo is used to auto-reject active applications when a job reaches a terminal state.
+func NewJobService(jobRepo repository.JobRepository, appRepo repository.ApplicationRepository) JobService {
+	return &jobService{jobRepo: jobRepo, appRepo: appRepo}
 }
 
 func (s *jobService) CreateJob(ctx context.Context, recruiterID uuid.UUID, req dto.CreateJobRequest) (*dto.JobResponse, error) {
@@ -108,6 +110,11 @@ func (s *jobService) UpdateJob(ctx context.Context, recruiterID, jobID uuid.UUID
 		return nil, apierror.ErrNotOwner
 	}
 
+	// Terminal jobs (closed / cancelled) are immutable.
+	if model.JobStatusTerminal(job.Status) {
+		return nil, apierror.ErrJobTerminal
+	}
+
 	if req.SalaryMin != nil && req.SalaryMax != nil && *req.SalaryMin > *req.SalaryMax {
 		return nil, apierror.ErrInvalidSalary
 	}
@@ -139,6 +146,13 @@ func (s *jobService) UpdateJob(ctx context.Context, recruiterID, jobID uuid.UUID
 			return nil, err
 		}
 		job.Status = req.Status
+
+		// When transitioning to a terminal state, reject all active applications.
+		if model.JobStatusTerminal(req.Status) {
+			if err := s.appRepo.RejectActiveApplications(ctx, job.ID); err != nil {
+				return nil, fmt.Errorf("update job: reject active applications: %w", err)
+			}
+		}
 	}
 
 	if err := s.jobRepo.Update(ctx, job); err != nil {

@@ -41,4 +41,8 @@ type ApplicationRepository interface {
 	ListByCandidate(ctx context.Context, candidateID uuid.UUID) ([]model.Application, error)
 	ListByJob(ctx context.Context, jobID uuid.UUID) ([]model.Application, error)
 	Update(ctx context.Context, app *model.Application) error
+	// RejectActiveApplications sets status = rejected for all pending or
+	// in_progress applications on the given job. Called when a job transitions
+	// to a terminal state (closed or cancelled).
+	RejectActiveApplications(ctx context.Context, jobID uuid.UUID) error
 }

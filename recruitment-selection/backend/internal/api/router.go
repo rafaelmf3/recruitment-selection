@@ -29,8 +29,9 @@ func NewRouter(
 	r.Use(gin.Logger(), gin.Recovery())
 	r.Use(middleware.CORS(cfg.AllowedOrigins))
 
-	// Serve uploaded CV files at /uploads/<filename>
-	// Requires auth so that only logged-in users can access CVs.
+	// Serve uploaded CV files at /uploads/<filename>.
+	// Files are publicly accessible by URL; access is implicitly limited because
+	// filenames are UUIDs and are never listed — only returned via authenticated endpoints.
 	r.Static("/uploads", cfg.UploadDir)
 
 	// Health check

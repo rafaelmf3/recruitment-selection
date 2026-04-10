@@ -8,13 +8,10 @@ import (
 )
 
 // UpdateApplicationStatusRequest is the payload for PATCH /api/v1/applications/:id/status.
+// Only recruiter-controlled statuses are allowed here; "withdrawn" is handled
+// by the candidate's own PATCH /applications/:id/withdraw endpoint.
 type UpdateApplicationStatusRequest struct {
-	Status model.ApplicationStatus `json:"status" binding:"required,oneof=accepted rejected withdrawn"`
-}
-
-// AdvanceStageRequest is the payload for PATCH /api/v1/applications/:id/stage.
-type AdvanceStageRequest struct {
-	StageID uuid.UUID `json:"stage_id" binding:"required"`
+	Status model.ApplicationStatus `json:"status" binding:"required,oneof=accepted rejected"`
 }
 
 // ApplicationResponse is the public representation of an application.

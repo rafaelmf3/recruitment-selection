@@ -131,6 +131,8 @@ func (h *JobHandler) UpdateJob(c *gin.Context) {
 			c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		case errors.Is(err, apierror.ErrNotOwner):
 			c.JSON(http.StatusForbidden, gin.H{"error": err.Error()})
+		case errors.Is(err, apierror.ErrJobTerminal):
+			c.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
 		case errors.Is(err, apierror.ErrInvalidTransition):
 			c.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
 		default:

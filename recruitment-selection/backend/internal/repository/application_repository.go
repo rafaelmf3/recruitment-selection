@@ -76,3 +76,14 @@ func (r *applicationRepository) ListByJob(ctx context.Context, jobID uuid.UUID) 
 func (r *applicationRepository) Update(ctx context.Context, app *model.Application) error {
 	return r.db.WithContext(ctx).Save(app).Error
 }
+
+func (r *applicationRepository) RejectActiveApplications(ctx context.Context, jobID uuid.UUID) error {
+	active := []model.ApplicationStatus{
+		model.ApplicationStatusPending,
+		model.ApplicationStatusInProgress,
+	}
+	return r.db.WithContext(ctx).
+		Model(&model.Application{}).
+		Where("job_id = ? AND status IN ?", jobID, active).
+		Update("status", model.ApplicationStatusRejected).Error
+}
