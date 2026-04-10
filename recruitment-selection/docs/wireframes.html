@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Wireframes — Recrutamento & Seleção</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, sans-serif; background: #f0f0f0; color: #333; padding: 32px; }
+  h1 { font-size: 14px; font-weight: 600; color: #888; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 32px; }
+  .screens { display: flex; flex-wrap: wrap; gap: 40px; }
+
+  /* Screen frame */
+  .screen { background: #fff; border: 2px solid #ccc; border-radius: 8px; overflow: hidden; width: 360px; }
+  .screen-label { background: #e8e8e8; padding: 8px 14px; font-size: 11px; font-weight: 700; color: #555; letter-spacing: .05em; text-transform: uppercase; border-bottom: 1px solid #ccc; display: flex; align-items: center; gap: 6px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: #bbb; }
+
+  /* Navbar */
+  .nav { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; border-bottom: 1px solid #e5e5e5; }
+  .nav-logo { width: 80px; height: 12px; background: #c8c8c8; border-radius: 3px; }
+  .nav-right { display: flex; gap: 8px; align-items: center; }
+  .nav-pill { height: 24px; padding: 0 10px; background: #e0e0e0; border-radius: 20px; font-size: 11px; display: flex; align-items: center; color: #666; }
+  .nav-pill.active { background: #3b5bdb; color: #fff; }
+  .avatar { width: 28px; height: 28px; border-radius: 50%; background: #c8c8c8; }
+
+  /* Generic blocks */
+  .box  { background: #e8e8e8; border-radius: 4px; }
+  .body { padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+  .row  { display: flex; gap: 8px; align-items: center; }
+  .tag  { height: 20px; padding: 0 8px; border-radius: 10px; font-size: 10px; display: flex; align-items: center; }
+  .tag.green    { background: #d3f9d8; color: #2b8a3e; }
+  .tag.blue     { background: #dbe4ff; color: #364fc7; }
+  .tag.gray     { background: #e9ecef; color: #868e96; }
+  .tag.red      { background: #ffe3e3; color: #c92a2a; }
+  .tag.yellow   { background: #fff3bf; color: #e67700; }
+  .tag.orange   { background: #ffe8cc; color: #d9480f; }
+  .tag.darkgray { background: #dee2e6; color: #495057; }
+  .divider { height: 1px; background: #eeeeee; }
+  .btn { height: 32px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; }
+  .btn.primary { background: #3b5bdb; color: #fff; }
+  .btn.outline { background: #fff; border: 1px solid #ccc; color: #555; }
+  .input { height: 32px; background: #f5f5f5; border: 1px solid #ddd; border-radius: 4px; }
+  .label { font-size: 10px; color: #999; }
+
+  /* Card */
+  .card { border: 1px solid #e5e5e5; border-radius: 6px; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+  .card-title { height: 11px; background: #ccc; border-radius: 3px; width: 70%; }
+  .card-sub   { height: 9px; background: #e0e0e0; border-radius: 3px; width: 45%; }
+
+  /* Pipeline */
+  .pipeline { display: flex; gap: 0; overflow-x: auto; }
+  .stage { flex: 1; min-width: 72px; text-align: center; padding: 6px 4px; font-size: 10px; color: #888; border-right: 1px solid #e5e5e5; }
+  .stage:last-child { border-right: none; }
+  .stage.done { background: #d3f9d8; color: #2b8a3e; font-weight: 600; }
+  .stage.current { background: #dbe4ff; color: #364fc7; font-weight: 700; }
+  .stage-count { font-size: 16px; font-weight: 700; color: #333; }
+
+  /* Candidate row */
+  .cand { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid #f0f0f0; }
+  .cand:last-child { border-bottom: none; }
+  .cand-avatar { width: 28px; height: 28px; border-radius: 50%; background: #d0d0d0; flex-shrink: 0; }
+  .cand-info { flex: 1; }
+  .cand-name { height: 9px; background: #c8c8c8; border-radius: 3px; width: 60%; margin-bottom: 4px; }
+  .cand-stage { height: 8px; background: #e0e0e0; border-radius: 3px; width: 40%; }
+  .cand-action { width: 60px; height: 24px; background: #e8e8e8; border-radius: 4px; }
+
+  /* Annotations */
+  .note { font-size: 10px; color: #aaa; font-style: italic; padding: 0 16px 12px; }
+</style>
+</head>
+<body>
+
+<h1>Wireframes · Recrutamento &amp; Seleção</h1>
+<div class="screens">
+
+  <!-- 1. Login -->
+  <div class="screen">
+    <div class="screen-label"><div class="dot"></div><div class="dot"></div><div class="dot"></div>&nbsp; 1 · Login</div>
+    <div class="nav"><div class="nav-logo"></div></div>
+    <div class="body">
+      <div style="text-align:center;padding:8px 0">
+        <div style="height:13px;background:#bbb;border-radius:3px;width:120px;margin:0 auto 6px"></div>
+        <div style="height:9px;background:#e0e0e0;border-radius:3px;width:160px;margin:0 auto"></div>
+      </div>
+      <div class="label">Email</div>
+      <div class="input"></div>
+      <div class="label">Senha</div>
+      <div class="input"></div>
+      <div class="btn primary">Entrar</div>
+      <div style="text-align:center;font-size:11px;color:#aaa">Não tem conta? <span style="color:#3b5bdb">Cadastrar</span></div>
+    </div>
+    <div class="note">Token salvo no localStorage ao entrar</div>
+  </div>
+
+  <!-- 2. Cadastro -->
+  <div class="screen">
+    <div class="screen-label"><div class="dot"></div><div class="dot"></div><div class="dot"></div>&nbsp; 2 · Cadastro</div>
+    <div class="nav"><div class="nav-logo"></div></div>
+    <div class="body">
+      <div class="label">Nome</div>
+      <div class="input"></div>
+      <div class="label">Email</div>
+      <div class="input"></div>
+      <div class="label">Senha</div>
+      <div class="input"></div>
+      <div class="label">Você é…</div>
+      <div class="row">
+        <div style="flex:1;height:36px;border:2px solid #3b5bdb;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#3b5bdb">Recrutador</div>
+        <div style="flex:1;height:36px;border:1px solid #ddd;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:11px;color:#999">Candidato</div>
+      </div>
+      <div class="btn primary">Criar conta</div>
+    </div>
+    <div class="note">Redirecionado para dashboard após criar conta</div>
+  </div>
+
+  <!-- 3. Dashboard Recrutador -->
+  <div class="screen">
+    <div class="screen-label"><div class="dot"></div><div class="dot"></div><div class="dot"></div>&nbsp; 3 · Recrutador · Minhas Vagas</div>
+    <div class="nav">
+      <div class="nav-logo"></div>
+      <div class="nav-right">
+        <div class="nav-pill active">Minhas Vagas</div>
+        <div class="avatar"></div>
+      </div>
+    </div>
+    <div class="body">
+      <div class="row">
+        <div class="input" style="flex:1"></div>
+        <div class="btn primary" style="width:90px;flex-shrink:0">+ Nova Vaga</div>
+      </div>
+      <div class="divider"></div>
+      <!-- job card -->
+      <div class="card">
+        <div class="row"><div class="card-title"></div><div class="tag green">Aberta</div></div>
+        <div class="card-sub"></div>
+        <div class="row" style="justify-content:space-between">
+          <div style="font-size:10px;color:#aaa">8 candidatos · 3 etapas</div>
+          <div style="font-size:10px;color:#3b5bdb;font-weight:600">Ver pipeline →</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="row"><div class="card-title" style="width:55%"></div><div class="tag green">Aberta</div></div>
+        <div class="card-sub" style="width:35%"></div>
+        <div class="row" style="justify-content:space-between">
+          <div style="font-size:10px;color:#aaa">2 candidatos · 6 etapas</div>
+          <div style="font-size:10px;color:#3b5bdb;font-weight:600">Ver pipeline →</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="row"><div class="card-title" style="width:65%"></div><div class="tag gray">Fechada</div></div>
+        <div class="card-sub" style="width:40%"></div>
+        <div class="row" style="justify-content:space-between">
+          <div style="font-size:10px;color:#aaa">12 candidatos · encerrada</div>
+          <div style="font-size:10px;color:#aaa">Reabrir</div>
+        </div>
+      </div>
+    </div>
+    <div class="note">Busca filtra por título em tempo real</div>
+  </div>
+
+  <!-- 4. Pipeline da Vaga -->
+  <div class="screen">
+    <div class="screen-label"><div class="dot"></div><div class="dot"></div><div class="dot"></div>&nbsp; 4 · Recrutador · Pipeline</div>
+    <div class="nav">
+      <div style="font-size:11px;color:#3b5bdb">← Vagas</div>
+      <div class="nav-right"><div class="avatar"></div></div>
+    </div>
+    <div class="body" style="gap:8px">
+      <div class="row">
+        <div style="flex:1">
+          <div style="height:11px;background:#bbb;border-radius:3px;width:75%;margin-bottom:5px"></div>
+          <div class="row" style="gap:6px">
+            <div class="tag blue">Aberta</div>
+            <div style="font-size:10px;color:#aaa">R$ 5k – 8k · Remoto</div>
+          </div>
+        </div>
+        <div class="btn outline" style="width:56px;font-size:10px">Editar</div>
+      </div>
+      <div class="divider"></div>
+      <!-- pipeline summary -->
+      <div class="pipeline" style="border:1px solid #e5e5e5;border-radius:6px;overflow:hidden">
+        <div class="stage done"><div class="stage-count">4</div>Screening</div>
+        <div class="stage current"><div class="stage-count">2</div>Técnico</div>
+        <div class="stage"><div class="stage-count">1</div>Time</div>
+        <div class="stage"><div class="stage-count">0</div>Gestores</div>
+        <div class="stage"><div class="stage-count">0</div>Oferta</div>
+      </div>
+      <div class="label" style="padding-top:4px">CANDIDATOS (7)</div>
+      <!-- candidate rows -->
+      <div class="cand">
+        <div class="cand-avatar"></div>
+        <div class="cand-info"><div class="cand-name"></div><div class="cand-stage"></div></div>
+        <div class="tag yellow">Técnico</div>
+        <div class="cand-action"></div>
+      </div>
+      <div class="cand">
+        <div class="cand-avatar"></div>
+        <div class="cand-info"><div class="cand-name" style="width:50%"></div><div class="cand-stage" style="width:30%"></div></div>
+        <div class="tag blue">Screening</div>
+        <div class="cand-action"></div>
+      </div>
+      <div class="cand">
+        <div class="cand-avatar"></div>
+        <div class="cand-info"><div class="cand-name" style="width:65%"></div><div class="cand-stage" style="width:45%"></div></div>
+        <div class="tag red">Rejeitado</div>
+        <div class="cand-action"></div>
+      </div>
+    </div>
+    <div class="note">Botão de ação inline: Avançar etapa / Aceitar / Rejeitar</div>
+  </div>
+
+  <!-- 5. Dashboard Candidato -->
+  <div class="screen">
+    <div class="screen-label"><div class="dot"></div><div class="dot"></div><div class="dot"></div>&nbsp; 5 · Candidato · Buscar Vagas</div>
+    <div class="nav">
+      <div class="nav-logo"></div>
+      <div class="nav-right">
+        <div class="nav-pill">Buscar Vagas</div>
+        <div class="nav-pill active">Minhas Candidaturas</div>
+        <div class="avatar"></div>
+      </div>
+    </div>
+    <div class="body">
+      <div class="input" style="width:100%"></div>
+      <div class="row" style="gap:6px">
+        <div class="input" style="flex:1"></div>
+        <div class="input" style="flex:1"></div>
+        <div class="btn primary" style="width:60px;flex-shrink:0">Filtrar</div>
+      </div>
+      <div class="divider"></div>
+      <div class="card">
+        <div class="row"><div class="card-title"></div><div class="tag green">Aberta</div></div>
+        <div class="card-sub"></div>
+        <div class="row" style="justify-content:space-between;margin-top:2px">
+          <div style="font-size:10px;color:#aaa">R$ 5k – 8k · Remoto</div>
+          <div class="btn primary" style="width:80px;height:24px;font-size:10px">Candidatar</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="row"><div class="card-title" style="width:55%"></div><div class="tag green">Aberta</div></div>
+        <div class="card-sub" style="width:35%"></div>
+        <div class="row" style="justify-content:space-between;margin-top:2px">
+          <div style="font-size:10px;color:#aaa">R$ 3k – 5k · Híbrido</div>
+          <div class="btn outline" style="width:80px;height:24px;font-size:10px;color:#aaa">Aplicado ✓</div>
+        </div>
+      </div>
+    </div>
+    <div class="note">Filtros: título, salário mín/máx</div>
+  </div>
+
+  <!-- 6. Minhas Candidaturas -->
+  <div class="screen">
+    <div class="screen-label"><div class="dot"></div><div class="dot"></div><div class="dot"></div>&nbsp; 6 · Candidato · Minhas Candidaturas</div>
+    <div class="nav">
+      <div class="nav-logo"></div>
+      <div class="nav-right">
+        <div class="nav-pill">Buscar Vagas</div>
+        <div class="nav-pill active">Minhas Candidaturas</div>
+        <div class="avatar"></div>
+      </div>
+    </div>
+    <div class="body">
+      <div class="card">
+        <div class="row"><div class="card-title"></div><div class="tag yellow">Em andamento</div></div>
+        <div class="card-sub"></div>
+        <!-- mini pipeline -->
+        <div class="pipeline" style="border:1px solid #e5e5e5;border-radius:4px;overflow:hidden;margin-top:4px">
+          <div class="stage done" style="font-size:9px;padding:4px 2px">Screening</div>
+          <div class="stage current" style="font-size:9px;padding:4px 2px">Técnico</div>
+          <div class="stage" style="font-size:9px;padding:4px 2px">Time</div>
+          <div class="stage" style="font-size:9px;padding:4px 2px">Oferta</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="row"><div class="card-title" style="width:55%"></div><div class="tag green">Aceito!</div></div>
+        <div class="card-sub" style="width:35%"></div>
+        <div class="pipeline" style="border:1px solid #e5e5e5;border-radius:4px;overflow:hidden;margin-top:4px">
+          <div class="stage done" style="font-size:9px;padding:4px 2px">Screening</div>
+          <div class="stage done" style="font-size:9px;padding:4px 2px">Técnico</div>
+          <div class="stage done" style="font-size:9px;padding:4px 2px">Time</div>
+          <div class="stage done" style="font-size:9px;padding:4px 2px">Oferta</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="row"><div class="card-title" style="width:65%"></div><div class="tag red">Rejeitado</div></div>
+        <div class="card-sub" style="width:40%"></div>
+        <div class="pipeline" style="border:1px solid #e5e5e5;border-radius:4px;overflow:hidden;margin-top:4px">
+          <div class="stage done" style="font-size:9px;padding:4px 2px">Screening</div>
+          <div class="stage" style="font-size:9px;padding:4px 2px;opacity:.4">Técnico</div>
+          <div class="stage" style="font-size:9px;padding:4px 2px;opacity:.4">Time</div>
+          <div class="stage" style="font-size:9px;padding:4px 2px;opacity:.4">Oferta</div>
+        </div>
+      </div>
+    </div>
+    <div class="note">Pipeline visual mostra exatamente onde o candidato está</div>
+  </div>
+
+</div>
+
+<!-- State machine reference -->
+<div style="margin-top:48px">
+  <h1>Estado das vagas · Máquina de transições</h1>
+  <div style="display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap;margin-top:16px">
+
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div style="background:#fff;border:2px solid #ccc;border-radius:8px;padding:16px;width:220px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+          <span class="tag green" style="height:24px;font-size:11px;font-weight:700">Aberta</span>
+          <span style="font-size:11px;color:#888">open</span>
+        </div>
+        <div style="font-size:11px;color:#555;line-height:1.6">Recebendo candidaturas.<br>Estado inicial de toda vaga.</div>
+        <div style="margin-top:10px;font-size:10px;color:#aaa">Pode ir para</div>
+        <div style="display:flex;gap:4px;margin-top:4px;flex-wrap:wrap">
+          <span class="tag orange" style="font-size:10px">Pausada</span>
+          <span class="tag gray" style="font-size:10px">Fechada</span>
+          <span class="tag darkgray" style="font-size:10px">Cancelada</span>
+        </div>
+      </div>
+
+      <div style="background:#fff;border:2px solid #ccc;border-radius:8px;padding:16px;width:220px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+          <span class="tag orange" style="height:24px;font-size:11px;font-weight:700">Pausada</span>
+          <span style="font-size:11px;color:#888">paused</span>
+        </div>
+        <div style="font-size:11px;color:#555;line-height:1.6">Processo congelado.<br>Sem novas candidaturas.</div>
+        <div style="margin-top:10px;font-size:10px;color:#aaa">Pode ir para</div>
+        <div style="display:flex;gap:4px;margin-top:4px;flex-wrap:wrap">
+          <span class="tag green" style="font-size:10px">Aberta</span>
+          <span class="tag gray" style="font-size:10px">Fechada</span>
+          <span class="tag darkgray" style="font-size:10px">Cancelada</span>
+        </div>
+      </div>
+
+      <div style="background:#fff;border:2px solid #ccc;border-radius:8px;padding:16px;width:220px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+          <span class="tag gray" style="height:24px;font-size:11px;font-weight:700">Fechada</span>
+          <span style="font-size:11px;color:#888">closed</span>
+        </div>
+        <div style="font-size:11px;color:#555;line-height:1.6">Processo concluído.<br>Alguém foi contratado.</div>
+        <div style="margin-top:10px;font-size:10px;color:#c92a2a;font-weight:600">Terminal - sem retorno</div>
+      </div>
+
+      <div style="background:#fff;border:2px solid #ccc;border-radius:8px;padding:16px;width:220px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+          <span class="tag darkgray" style="height:24px;font-size:11px;font-weight:700">Cancelada</span>
+          <span style="font-size:11px;color:#888">cancelled</span>
+        </div>
+        <div style="font-size:11px;color:#555;line-height:1.6">Processo abandonado.<br>Ninguém foi contratado.</div>
+        <div style="margin-top:10px;font-size:10px;color:#c92a2a;font-weight:600">Terminal - sem retorno</div>
+      </div>
+    </div>
+
+    <div style="background:#fff;border:2px solid #ccc;border-radius:8px;padding:16px;width:260px;font-size:11px;line-height:1.8;color:#555">
+      <div style="font-weight:700;color:#333;margin-bottom:10px;font-size:12px">Regras de negócio</div>
+      <div>Candidatos so podem se inscrever em vagas <strong>abertas</strong></div>
+      <div style="margin-top:6px">Vagas <strong>pausadas</strong> nao aceitam novas candidaturas, mas as existentes continuam no pipeline</div>
+      <div style="margin-top:6px"><strong>Fechada</strong> e <strong>Cancelada</strong> sao terminais - o recrutador nao pode reverter</div>
+      <div style="margin-top:6px"><strong>Pausada para Aberta</strong> e a unica transicao de retorno permitida</div>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>

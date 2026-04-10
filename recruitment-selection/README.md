@@ -189,7 +189,8 @@ go test ./internal/...
 # Integration tests (requires db_test container running)
 docker compose up -d db_test
 go test ./internal/... -tags=integration -v
-```
+``` 
+
 
 ---
 

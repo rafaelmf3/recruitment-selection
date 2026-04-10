@@ -1,7 +1,13 @@
 -- Migration: 002_create_jobs
 -- Creates the job_status enum type and jobs table.
+--
+-- Status state machine:
+--   open  --> paused | closed | cancelled
+--   paused --> open  | closed | cancelled
+--   closed    (terminal - process completed, someone was hired)
+--   cancelled (terminal - process abandoned, no hire)
 
-CREATE TYPE job_status AS ENUM ('open', 'closed');
+CREATE TYPE job_status AS ENUM ('open', 'paused', 'closed', 'cancelled');
 
 CREATE TABLE IF NOT EXISTS jobs (
     id           UUID         PRIMARY KEY DEFAULT gen_random_uuid(),
