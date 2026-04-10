@@ -28,8 +28,8 @@ export const jobsService = {
     return res.data
   },
 
-  myJobs: async (): Promise<Job[]> => {
-    const res = await api.get<Job[]>('/recruiter/jobs')
+  myJobs: async (params?: { q?: string; status?: string }): Promise<Job[]> => {
+    const res = await api.get<Job[]>('/recruiter/jobs', { params })
     return res.data
   },
 }

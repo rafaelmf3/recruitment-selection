@@ -27,7 +27,13 @@ func NewJobHandler(jobSvc service.JobService) *JobHandler {
 func (h *JobHandler) GetMyJobs(c *gin.Context) {
 	recruiterID := c.MustGet(middleware.ContextKeyUserID).(uuid.UUID)
 
-	jobs, err := h.jobSvc.GetMyJobs(c.Request.Context(), recruiterID)
+	var filter dto.RecruiterJobFilter
+	if err := c.ShouldBindQuery(&filter); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	jobs, err := h.jobSvc.GetMyJobs(c.Request.Context(), recruiterID, filter)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
 		return

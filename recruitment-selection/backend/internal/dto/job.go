@@ -31,7 +31,7 @@ type UpdateJobRequest struct {
 	Status       model.JobStatus   `json:"status"       binding:"omitempty,oneof=open paused closed cancelled"`
 }
 
-// JobFilter contains query parameters for GET /api/v1/jobs.
+// JobFilter contains query parameters for GET /api/v1/jobs (public listing).
 type JobFilter struct {
 	Q         string   `form:"q"`
 	Location  string   `form:"location"`
@@ -39,6 +39,12 @@ type JobFilter struct {
 	SalaryMax *float64 `form:"salary_max"`
 	Page      int      `form:"page,default=1"`
 	Limit     int      `form:"limit,default=20"`
+}
+
+// RecruiterJobFilter contains query parameters for GET /api/v1/recruiter/jobs.
+type RecruiterJobFilter struct {
+	Q       string `form:"q"`       // searches title and company (case-insensitive)
+	Status  string `form:"status"`  // optional: open | paused | closed | cancelled
 }
 
 // StageInput is a single stage definition when updating a job's pipeline.

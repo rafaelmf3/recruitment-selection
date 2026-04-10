@@ -40,10 +40,20 @@ func (r *jobRepository) FindByID(ctx context.Context, id uuid.UUID) (*model.Job,
 	return &job, err
 }
 
-func (r *jobRepository) FindByRecruiter(ctx context.Context, recruiterID uuid.UUID) ([]model.Job, error) {
+func (r *jobRepository) FindByRecruiter(ctx context.Context, recruiterID uuid.UUID, filter dto.RecruiterJobFilter) ([]model.Job, error) {
 	var jobs []model.Job
-	err := r.db.WithContext(ctx).
-		Where("recruiter_id = ?", recruiterID).
+
+	query := r.db.WithContext(ctx).Where("recruiter_id = ?", recruiterID)
+
+	if filter.Q != "" {
+		like := "%" + filter.Q + "%"
+		query = query.Where("title ILIKE ? OR company ILIKE ?", like, like)
+	}
+	if filter.Status != "" {
+		query = query.Where("status = ?", filter.Status)
+	}
+
+	err := query.
 		Preload("Recruiter").
 		Preload("Stages", func(db *gorm.DB) *gorm.DB {
 			return db.Order("order_index ASC")

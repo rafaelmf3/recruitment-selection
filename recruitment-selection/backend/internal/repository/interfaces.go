@@ -22,7 +22,7 @@ type UserRepository interface {
 type JobRepository interface {
 	Create(ctx context.Context, job *model.Job) error
 	FindByID(ctx context.Context, id uuid.UUID) (*model.Job, error)
-	FindByRecruiter(ctx context.Context, recruiterID uuid.UUID) ([]model.Job, error)
+	FindByRecruiter(ctx context.Context, recruiterID uuid.UUID, filter dto.RecruiterJobFilter) ([]model.Job, error)
 	List(ctx context.Context, filter dto.JobFilter) ([]model.Job, int64, error)
 	Update(ctx context.Context, job *model.Job) error
 	Delete(ctx context.Context, id uuid.UUID) error

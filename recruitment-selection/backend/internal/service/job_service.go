@@ -77,8 +77,8 @@ func (s *jobService) ListJobs(ctx context.Context, filter dto.JobFilter) ([]dto.
 	return responses, total, nil
 }
 
-func (s *jobService) GetMyJobs(ctx context.Context, recruiterID uuid.UUID) ([]dto.JobResponse, error) {
-	jobs, err := s.jobRepo.FindByRecruiter(ctx, recruiterID)
+func (s *jobService) GetMyJobs(ctx context.Context, recruiterID uuid.UUID, filter dto.RecruiterJobFilter) ([]dto.JobResponse, error) {
+	jobs, err := s.jobRepo.FindByRecruiter(ctx, recruiterID, filter)
 	if err != nil {
 		return nil, fmt.Errorf("get my jobs: %w", err)
 	}

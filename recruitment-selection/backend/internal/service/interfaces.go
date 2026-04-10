@@ -21,7 +21,7 @@ type AuthService interface {
 type JobService interface {
 	CreateJob(ctx context.Context, recruiterID uuid.UUID, req dto.CreateJobRequest) (*dto.JobResponse, error)
 	ListJobs(ctx context.Context, filter dto.JobFilter) ([]dto.JobResponse, int64, error)
-	GetMyJobs(ctx context.Context, recruiterID uuid.UUID) ([]dto.JobResponse, error)
+	GetMyJobs(ctx context.Context, recruiterID uuid.UUID, filter dto.RecruiterJobFilter) ([]dto.JobResponse, error)
 	GetJobByID(ctx context.Context, id uuid.UUID) (*dto.JobResponse, error)
 	UpdateJob(ctx context.Context, recruiterID, jobID uuid.UUID, req dto.UpdateJobRequest) (*dto.JobResponse, error)
 	DeleteJob(ctx context.Context, recruiterID, jobID uuid.UUID) error

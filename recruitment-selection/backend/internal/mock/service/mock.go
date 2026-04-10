@@ -54,8 +54,8 @@ func (m *JobService) ListJobs(ctx context.Context, filter dto.JobFilter) ([]dto.
 	return args.Get(0).([]dto.JobResponse), args.Get(1).(int64), args.Error(2)
 }
 
-func (m *JobService) GetMyJobs(ctx context.Context, recruiterID uuid.UUID) ([]dto.JobResponse, error) {
-	args := m.Called(ctx, recruiterID)
+func (m *JobService) GetMyJobs(ctx context.Context, recruiterID uuid.UUID, filter dto.RecruiterJobFilter) ([]dto.JobResponse, error) {
+	args := m.Called(ctx, recruiterID, filter)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
 	}

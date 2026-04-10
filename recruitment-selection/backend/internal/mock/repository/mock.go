@@ -55,8 +55,8 @@ func (m *JobRepository) FindByID(ctx context.Context, id uuid.UUID) (*model.Job,
 	return args.Get(0).(*model.Job), args.Error(1)
 }
 
-func (m *JobRepository) FindByRecruiter(ctx context.Context, recruiterID uuid.UUID) ([]model.Job, error) {
-	args := m.Called(ctx, recruiterID)
+func (m *JobRepository) FindByRecruiter(ctx context.Context, recruiterID uuid.UUID, filter dto.RecruiterJobFilter) ([]model.Job, error) {
+	args := m.Called(ctx, recruiterID, filter)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
 	}

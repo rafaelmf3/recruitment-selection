@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Plus, ChevronRight, ChevronDown, ChevronUp, Pencil, Check, X } from 'lucide-react'
+import { Plus, ChevronRight, ChevronDown, ChevronUp, Pencil, Check, X, Search } from 'lucide-react'
 import { jobsService } from '@/services/jobs'
 import type { Job } from '@/types'
 import { Button } from '@/components/ui/button'
@@ -161,18 +161,49 @@ function JobCard({ job, onUpdate }: JobCardProps) {
   )
 }
 
+const STATUS_OPTIONS = [
+  { value: '', label: 'Todos os status' },
+  { value: 'open', label: 'Aberta' },
+  { value: 'paused', label: 'Pausada' },
+  { value: 'closed', label: 'Encerrada' },
+  { value: 'cancelled', label: 'Cancelada' },
+]
+
 export default function MyJobsPage() {
   const [jobs, setJobs] = useState<Job[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
+  const [search, setSearch] = useState('')
+  const [status, setStatus] = useState('')
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  useEffect(() => {
+  function fetchJobs(q: string, st: string) {
+    setIsLoading(true)
+    setError('')
     jobsService
-      .myJobs()
+      .myJobs({ q: q || undefined, status: st || undefined })
       .then(setJobs)
       .catch(() => setError('Erro ao carregar vagas.'))
       .finally(() => setIsLoading(false))
+  }
+
+  // Initial load
+  useEffect(() => {
+    fetchJobs('', '')
   }, [])
+
+  function handleSearchChange(value: string) {
+    setSearch(value)
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    debounceRef.current = setTimeout(() => {
+      fetchJobs(value, status)
+    }, 350)
+  }
+
+  function handleStatusChange(value: string) {
+    setStatus(value)
+    fetchJobs(search, value)
+  }
 
   function handleJobUpdate(updated: Job) {
     setJobs((prev) => prev.map((j) => (j.id === updated.id ? updated : j)))
@@ -190,16 +221,45 @@ export default function MyJobsPage() {
         </Button>
       </div>
 
+      {/* Search + filter bar */}
+      <div className="flex gap-2 flex-wrap">
+        <div className="relative flex-1 min-w-48">
+          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+          <Input
+            className="pl-8"
+            placeholder="Buscar por nome ou empresa..."
+            value={search}
+            onChange={(e) => handleSearchChange(e.target.value)}
+          />
+        </div>
+        <select
+          className="border rounded-md px-3 py-2 text-sm bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+          value={status}
+          onChange={(e) => handleStatusChange(e.target.value)}
+        >
+          {STATUS_OPTIONS.map((o) => (
+            <option key={o.value} value={o.value}>
+              {o.label}
+            </option>
+          ))}
+        </select>
+      </div>
+
       {isLoading && <p className="text-muted-foreground">Carregando...</p>}
       {error && <p className="text-destructive">{error}</p>}
 
       {!isLoading && !error && jobs.length === 0 && (
         <Card>
           <CardContent className="py-12 text-center text-muted-foreground">
-            Nenhuma vaga cadastrada ainda.{' '}
-            <Link to="/recruiter/jobs/new" className="text-primary hover:underline">
-              Crie a primeira!
-            </Link>
+            {search || status
+              ? 'Nenhuma vaga encontrada para os filtros informados.'
+              : <>
+                  Nenhuma vaga cadastrada ainda.{' '}
+                  <Link to="/recruiter/jobs/new" className="text-primary hover:underline">
+                    Crie a primeira!
+                  </Link>
+                </>
+            }
           </CardContent>
         </Card>
       )}
